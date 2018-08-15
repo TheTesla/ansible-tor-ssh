@@ -1,0 +1,13 @@
+---
+
+- name: Install tor
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - tor
+    - torsocks
+  become: True
+  become_method: sudo
+
+

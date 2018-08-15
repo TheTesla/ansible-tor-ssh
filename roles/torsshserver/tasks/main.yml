@@ -1,0 +1,41 @@
+---
+
+- name: Install tor
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - tor
+    - torsocks
+  become: True
+  become_method: sudo
+
+- name: Enable tor ssh service
+  blockinfile:
+    dest: /etc/tor/torrc
+    content: |
+      HiddenServiceDir /var/lib/tor/hidden_ssh_service/
+      HiddenServicePort 22 127.0.0.1:22
+      HiddenServiceVersion 3
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - ssh"
+  become: True
+  become_method: sudo
+
+- name: Restart tor
+  systemd:
+    name: tor
+    state: restarted
+  become: True
+  become_method: sudo
+
+- name: Retrieve onion url
+  command: cat /var/lib/tor/hidden_ssh_service/hostname
+  become: True
+  become_method: sudo
+  register: torhostrv
+
+- debug: 
+   msg: "{{ torhostrv.stdout }}"
+  
+
+

@@ -1,0 +1,12 @@
+---
+
+- hosts: server
+  user: tesla42
+  roles:
+    - torsshserver
+
+- hosts: client
+  user: stefan
+  roles:
+    - torsshclient
+
