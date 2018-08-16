@@ -10,4 +10,17 @@
   become: True
   become_method: sudo
 
+- name: Get onion url
+  set_fact:
+    onionurl: "{% for i in hostvars %}{% if hostvars[i]['torhostrv'] is defined %}{{ hostvars[i]['torhostrv']['stdout'] }}{% endif %}{% endfor %}"
+    #msg: "{{ hostvars['172.23.92.64']['torhostrv']['stdout'] }}"
+
+- name: Create connect file
+  copy:
+    dest: "{{ playbook_dir }}/onionssh.bash"
+    mode: 0744
+    content: |
+      #!/bin/bash
+      torsocks ssh $1@{{ onionurl }}
+
 
