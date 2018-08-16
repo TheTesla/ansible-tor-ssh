@@ -1,6 +1,11 @@
 ---
 
-- hosts: server
+- hosts: server1
+  user: grc2
+  roles:
+    - torsshserver
+
+- hosts: server2
   user: tesla42
   roles:
     - torsshserver

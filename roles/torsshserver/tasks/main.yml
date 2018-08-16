@@ -1,5 +1,19 @@
 ---
 
+- name: Add apt key for newest tor
+  apt_key:
+    keyserver: keys.gnupg.net
+    id: '886DDD89'
+  become: True
+  become_method: sudo
+
+- name: Add newest tor
+  apt_repository:
+    repo: "deb http://deb.torproject.org/torproject.org/ {{ ansible_distribution_release }} main"
+    update_cache: True
+  become: True
+  become_method: sudo
+
 - name: Install tor
   apt:
     name: "{{ item }}"

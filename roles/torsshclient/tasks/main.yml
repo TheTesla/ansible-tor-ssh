@@ -1,5 +1,20 @@
 ---
 
+- name: Add apt key for newest tor
+  apt_key:
+    keyserver: keys.gnupg.net
+    id: '886DDD89'
+  become: True
+  become_method: sudo
+
+- name: Add newest tor
+  apt_repository:
+    repo: "deb http://deb.torproject.org/torproject.org/ {{ ansible_distribution_release }} main"
+    update_cache: True
+  become: True
+  become_method: sudo
+
+
 - name: Install tor
   apt:
     name: "{{ item }}"
@@ -13,14 +28,20 @@
 - name: Get onion url
   set_fact:
     onionurl: "{% for i in hostvars %}{% if hostvars[i]['torhostrv'] is defined %}{{ hostvars[i]['torhostrv']['stdout'] }}{% endif %}{% endfor %}"
-    #msg: "{{ hostvars['172.23.92.64']['torhostrv']['stdout'] }}"
+
+- name: Filter servers
+  set_fact:
+    serverlist: "{{ hostvars|list }}"
 
 - name: Create connect file
   copy:
-    dest: "{{ playbook_dir }}/onionssh.bash"
+    dest: "{{ playbook_dir }}/onionssh_{{ item }}.bash"
     mode: 0744
     content: |
       #!/bin/bash
-      torsocks ssh $1@{{ onionurl }}
+      torsocks ssh $1@{{ hostvars[item]['torhostrv']['stdout'] }}
+  with_items: "{{ serverlist }}"
+  when: "{{ 'torhostrv' in hostvars[item] }}"
+  ignore_errors: True
 
 
